@@ -1,0 +1,200 @@
+%   Доорх хэсгийг өөрчлөх шаардлагагүй
+%----------------------------------------------------------------------------------------
+\documentclass{report}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+%!TEX TS-program = lualatex
+%!TEX encoding = UTF-8 Unicode
+\usepackage{placeins}
+\usepackage{fontspec}
+\setmainfont[Ligatures=TeX]{Times New Roman}
+\setsansfont{Arial}
+
+% \usepackage[utf8x]{inputenc}
+% \usepackage[mongolian]{babel}
+%\usepackage{natbib}
+\usepackage{geometry}
+%\usepackage{fancyheadings} fancyheadings is obsolete: replaced by fancyhdr. JL
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{afterpage}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsbsy}
+\usepackage{dcolumn,array}
+\usepackage{tocloft}
+\usepackage{dics}
+\usepackage{nomencl}
+\usepackage{upgreek}
+\newcommand{\argmin}{\arg\!\min}
+\usepackage{mathtools}
+\usepackage[hidelinks]{hyperref}
+% Prevent hyperref warnings when it encounters \uppercase in titles etc.
+% Make \uppercase a harmless no-op when hyperref builds PDF string/bookmark text.
+\pdfstringdefDisableCommands{%
+    % Make \uppercase expand to its argument when creating PDF strings
+    \def\uppercase#1{#1}%
+}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{listings}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\makeatletter
+\usepackage{caption}
+\captionsetup[table]{belowskip=0.5pt}
+\usepackage{subfiles}
+
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Код}
+\renewcommand{\lstlistlistingname}{\lstlistingname ын жагсаалт}
+
+\usepackage{color}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.99,0.99,0.99}
+ 
+\lstdefinestyle{mystyle}{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    %basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=false,                 
+    numbers=left,                    
+    numbersep=10pt,                  
+    showspaces=false,                
+    showstringspaces=true,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+% Use Consolas for monospace (better Cyrillic coverage) and avoid global listing label
+\setmonofont{Consolas}
+\lstset{style=mystyle}
+
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+\makenomenclature
+% Ensure header has enough space for fancyhdr
+\setlength{\headheight}{13pt}
+
+% (No-op fallbacks removed — the package `dics.sty` defines the user-level
+% commands such as \titleEng, \supervisor and \cosupervisor; we call
+% \cosupervisor{} below if the document doesn't set a co-supervisor so that
+% the internal macro \@cosupervisor is created.)
+
+% Recognize common graphics extensions (including .png used in project)
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.jpeg,.png,.pngf}
+\begin{document}
+
+
+%----------------------------------------------------------------------------------------
+%   Өөрийн мэдээллээ оруулах хэсэг
+%----------------------------------------------------------------------------------------
+
+% Дипломийн ажлын сэдэв
+\title{Хэв танилтын үндэс (ICSI380)}
+% Дипломын ажлын англи нэр
+\titleEng{Лаборатори №2}
+% Өөрийн овог нэрийг бүтнээр нь бичнэ
+\author{Бадарчийн Бат-Энх}
+% Өөрийн овгийн эхний үсэг нэрээ бичнэ
+\authorShort{Б. Бат-Энх}
+% Удирдагчийн зэрэг цол овгийн эхний үсэг нэр
+\supervisor{Др. Б. Сувдаа}
+% Хамтарсан удирдагчийн зэрэг цол овгийн эхний үсэг нэр
+
+% СиСи дугаар 
+\sisiId{22B1NUM7226}
+% Их сургуулийн нэр
+\university{МОНГОЛ УЛСЫН ИХ СУРГУУЛЬ}
+% Бүрэлдэхүүн сургуулийн нэр
+\faculty{МЭДЭЭЛЛИЙН ТЕХНОЛОГИ ЭЛЕКТРОНИКИЙН СУРГУУЛЬ}
+% Тэнхимийн нэр
+\department{МЭДЭЭЛЭЛ, КОМПЬЮТЕРИЙН УХААНЫ ТЭНХИМ}
+% Зэргийн нэр
+\degreeName{Лабораторийн даалгавар}
+% Суралцаж буй хөтөлбөрийн нэр
+\programeName{Компьютерын Ухаан (D061301)}
+% Хэвлэгдсэн газар
+\cityName{Улаанбаатар}
+% Хэвлэгдсэн огноо
+\gradyear{2025 оны 10 сар}
+
+
+%----------------------------------------------------------------------------------------
+%   Доорх хэсгийг өөрчлөх шаардлагагүй
+%----------------------------------------------------------------------------------------
+% If no cosupervisor was provided, call the package macro with empty arg so
+% that \@cosupervisor is defined and the title page code won't error.
+\cosupervisor{}
+\include{main-pre}
+
+% Удиртгалыг оруулж ирэх ба abstract.tex файлд удиртгалаа бичнэ
+\include{abstract}
+
+%----------------------------------------------------------------------------------------
+%   Дипломын үндсэн хэсэг эндээс эхэлнэ
+%----------------------------------------------------------------------------------------
+%\addcontentsline{toc}{part}{БҮЛГҮҮД}
+% Шинэ бүлэг
+\chapter{Онолын судалгаа}
+\subfile{onol.tex}
+
+\chapter{Хэрэгжүүлэлт}
+\subfile{prac.tex}
+
+\chapter{Үр дүн}
+\subfile{pic.tex}
+
+\chapter{Код ба алгоритм оруулах}
+Код оруулахдаа begin\{lstlisting\}  ... end\{lstlisting\} командын хооронд бичнэ.
+
+
+%----------------------------------------------------------------------------------------
+%   Дүгнэлт эндээс эхэлнэ
+%----------------------------------------------------------------------------------------
+\conclusion{Дүгнэлт}
+Дүгнэлтийг энд бич
+
+%----------------------------------------------------------------------------------------
+%   Дипломын номзүй, хавсралтын хэсэг эндээс эхэлнэ
+%----------------------------------------------------------------------------------------
+
+\singlespace
+\addcontentsline{toc}{part}{НОМ ЗҮЙ}
+\begin{thebibliography}{}
+	% Ашигласан материалыг эндээс оруулна
+	\bibitem{image1}
+	Inserting Images, Share LaTex, \url{https://www.sharelatex.com/learn/Inserting_Images}
+	\bibitem{pharagraph1}
+	Paragraphs and new lines,  Share LaTex, \url{https://www.sharelatex.com/learn/Paragraphs_and_new_lines}
+	\bibitem{format1}
+	Bold, italics and underlining, Share LaTex, \url{https://www.sharelatex.com/learn/Bold,_italics_and_underlining}
+	\bibitem{list}
+	Lists, Share LaTex, \url{https://www.sharelatex.com/learn/Lists}
+    \bibitem{table}
+    Tables, Share LaTex, https://www.sharelatex.com/learn/Tables
+\end{thebibliography}
+
+
+%----------------------------------------------------------------------------------------
+%   Хавсралтууд эндээс эхэлнэ
+%----------------------------------------------------------------------------------------
+\appendix
+\addcontentsline{toc}{part}{ХАВСРАЛТ}
+
+% Хавсралтын нэр. Хавсралт гэдэг үг агуулахгүй
+
+% Хавсралтын нэр. Хавсралт гэдэг үг агуулахгүй
+
+
+\end{document}

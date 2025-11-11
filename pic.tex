@@ -1,0 +1,547 @@
+\section{Intensity quantization (Кванталлал)}
+\label{sec:intensity}
+
+Энэ хэсэгт зургийн intensity түвшний тоог өөр өөр утгаар хязгаарласан үр дүнг харуулав. Gray-level quantization нь зургийн мэдээллийг багасгаж, эх зурагт posterization буюу блок үүсэх эффект харагдана.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0221(a)(ctskull-256).png}
+    \caption{Original}
+    \label{fig:1intensity_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_2_levels.png}
+    \caption{Quantized — 2 level}
+    \label{fig:1intensity_q2}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_4_levels.png}
+    \caption{Quantized — 4 levels}
+    \label{fig:1intensity_q4}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_8_levels.png}
+    \caption{Quantized — 8 levels}
+    \label{fig:1intensity_q8}
+  \end{subfigure}
+
+  \vspace{10pt}
+
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_16_levels.png}
+    \caption{Quantized — 16 levels}
+    \label{fig:1intensity_q16}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_32_levels.png}
+    \caption{Quantized — 32 levels}
+    \label{fig:1intensity_q32}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_64_levels.png}
+    \caption{Quantized — 64 levels}
+    \label{fig:1intensity_q64}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{quantized_128_levels.png}
+    \caption{Quantized — 128 levels}
+    \label{fig:1intensity_q128}
+  \end{subfigure}
+
+  \caption{Эх зураг болон кванталсан хувилбарууд. Кванталлалын түвшин багасах тусам posterization илүү тод харагдана.}
+  \label{fig:1intensity_all}
+\end{figure}
+
+\paragraph{Дүн шинжилгээ:}
+Кванталсан level-ын тоо багасах тусам зурагт posterization шатлалт/блок эффект илүү тод илэрнэ: 2 болон 4 түвшин нь нягтаршил ихтэй битийн хязгаарлагдмал дүрслэл үүсгэж, нарийн градиент болон сул ялгарлууд алга болно. 8–16 түвшин нь ихэнх градиентыг авч үлдэнэ, харин 64–128 түвшин нь эх зурагт ойр үр дүн өгнө.
+
+
+\section{Зургийн томруулалт (Image Interpolation)}
+\label{sec:interpolation}
+
+Bilinear interpolation аргыг ашиглан өөр өөр анхны хэмжээтэй зургуудыг 1024×1024 хүртэл томруулав. Жижиг хэмжээтэй анхны зургаас томруулах тусам блур болон aliasing эффект илүү тод харагдана.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bilinear_interpolated_1024_from_original_32x32.png}
+    \caption{32×32 → 1024×1024}
+    \label{fig:interp_32}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bilinear_interpolated_1024_from_original_64x64.png}
+    \caption{64×64 → 1024×1024}
+    \label{fig:interp_64}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bilinear_interpolated_1024_from_original_128x128.png}
+    \caption{128×128 → 1024×1024}
+    \label{fig:interp_128}
+  \end{subfigure}
+  \caption{Bilinear interpolation аргаар томруулсан үр дүн. Анхны хэмжээ ихсэх тусам чанар сайжирна.}
+  \label{fig:interpolation_comparison}
+\end{figure}
+\paragraph{Дүн шинжилгээ:}
+32×32 эх зураг хамгийн бүдэг ир дүн гаргасан бөгөөд pixelation илэрхий байна. 64×64 нь зарим нарийвчлалыг хадгалж чадсан боловч блур бага зэрэг үлдсэн. 128×128 эх зураг нь хамгийн тод үр дүн өгч, ирмэг болон текстурын мэдээлэл илүү сайн хадгалагдсан байна.
+
+
+\section{Contrast Stretching}
+\label{sec:contrast}
+
+Contrast stretching нь бага contrast-той зургийн гэрэл, бараан хэсгүүдийг өргөсгөн тод болгох арга юм. Зураг \ref{fig:contrast_stretch}-д эх зураг болон contrast stretching хийсэн үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0310(b)(washed_out_pollen_image).png}
+    \caption{Эх зураг (бүдэг)}
+    \label{fig:contrast_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{contrast_stretched.png}
+    \caption{Contrast stretching хийсэн}
+    \label{fig:contrast_result}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{binary_threshold.png}
+    \caption{Threshold хийсэн}
+    \label{fig:threshold_result}
+  \end{subfigure}
+
+  \caption{Contrast stretching техник ашиглан бүдэг зургийг сайжруулсан үр дүн. Бараан ба цайвар хэсгүүд илүү тод ялгарах болсон.}
+  \label{fig:contrast_stretch}
+\end{figure}
+
+\paragraph{Үнэлгээ:}
+Эх зураг нь intensity value-ууд нарийн мужид (жишээ нь 50–150) төвлөрсөн байсан бол contrast stretching дараа 0–255 мужид тархаж гэрэлтэй болон бараан хэсгүүдийн ялгарал тодорхой болсон байна.
+
+\section{Gray-Level Slicing}
+\label{sec:gray_slice}
+
+Gray-level slicing нь зургийн тодорхой интенситийн мужид байгаа пикселүүдийг илрүүлж тусгаарлах арга юм. Зураг \ref{fig:gray_slice}-д хоёр төрлийн gray-level slicing үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{gray_slice_result.png}
+    \caption{Background хадгалсан}
+    \label{fig:gray_slice_preserve}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{gray_slice_flat_result.png}
+    \caption{Background арилгасан}
+    \label{fig:gray_slice_flat}
+  \end{subfigure}
+  \label{fig:gray_slice}
+\caption{Gray-level slicing }
+\end{figure}
+
+\paragraph{Үр дүн:}
+ Тодорхой intensity мужид орших объектуудыг цайруулж тодруулсан. Зүүн талд background хадгалсан, баруун талд арилгасан хувилбарыг үзүүлэв.
+\paragraph{Хэрэглээ:}
+Энэ арга нь медицины зураг дээр тодорхой төрлийн эд, эсвэл industrial inspection-д гэмтсэн хэсгийг илрүүлэхэд өргөн хэрэглэгддэг.
+
+\section{Bit-Plane Slicing}
+\label{sec:bitplane}
+
+Bit-plane slicing нь пикселийн binary төлөөлөлийн тус бүр битийг салгаж Зураг \ref{fig:bitplane}-д харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_7.png}
+    \caption{Bit 7 (MSB)}
+    \label{fig:bit7}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_6.png}
+    \caption{Bit 6}
+    \label{fig:bit6}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_5.png}
+    \caption{Bit 5}
+    \label{fig:bit5}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_4.png}
+    \caption{Bit 4}
+    \label{fig:bit4}
+  \end{subfigure}
+
+  \vspace{10pt}
+
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_3.png}
+    \caption{Bit 3}
+    \label{fig:bit3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_2.png}
+    \caption{Bit 2}
+    \label{fig:bit2}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_1.png}
+    \caption{Bit 1}
+    \label{fig:bit1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.21\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{bit_plane_0.png}
+    \caption{Bit 0 (LSB)}
+    \label{fig:bit0}
+  \end{subfigure}
+
+  \caption{8 bit plane харуулав. Bit 7 (MSB) нь зургийн үндсэн бүтцийг агуулж, bit 0 (LSB) нь чимээ болон нарийн texture-ийг агуулдаг.}
+  \label{fig:bitplane}
+\end{figure}
+
+\paragraph{Ажиглалт:}
+Өндөр bit plane-ууд (6, 7) нь зургийн үндсэн мэдээллийг тодорхой харуулж байхад доод bit plane-ууд (0, 1, 2) нь чимээ шиг санагддаг. Энэ техник нь data compression, steganography-д ашиглагддаг.
+
+\section{Histogram Processing}
+\label{sec:histogram}
+
+Histogram нь зургийн intensity утгуудын тархалтыг харуулах график юм. Histogram equalization нь тархалтыг жигдрүүлж contrast-ийг нэмэгдүүлдэг. Зураг \ref{fig:histogram}-д histogram болон түүний normalized хэлбэрийг үзүүлэв.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{histogram_matplotlib.png}
+    \caption{Histogram}
+    \label{fig:hist_normal}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{histogram_normalized.png}
+    \caption{Normalized histogram}
+    \label{fig:hist_normalized}
+  \end{subfigure}
+    \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{histogram_normalized2.png}
+    \caption{Histogram}
+    \label{fig:hist_normal}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{histogram_normalized.png}
+    \caption{Normalized histogram}
+    \label{fig:hist_normalized}
+  \end{subfigure}
+
+  \caption{Зургийн histogram ба normalized histogram. Normalized histogram нь утга тус бүрийн магадлалыг харуулдаг.}
+  \label{fig:histogram}
+\end{figure}
+\FloatBarrier
+
+\paragraph{Хэрэглээ:}
+Histogram analysis нь зургийн чанар үнэлэх, автомат threshold олох, түүх болон adaptive enhancement хийхэд ашиглагддаг.
+
+\section{Local Enhancement (CLAHE)}
+\label{sec:local_enhance}
+
+Local enhancement нь зургийн локал хэсэг тус бүрийг орчны статистикт үндэслэн боловсруулах арга юм. CLAHE (Contrast Limited Adaptive Histogram Equalization) нь хамгийн түгээмэл local enhancement арга. Зураг \ref{fig:local_enhance}-д үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0326(a)(embedded_square_noisy_512).png}
+    \caption{Эх зураг}
+    \label{fig:local_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{clahe_enhanced.png}
+    \caption{CLAHE хийсэн}
+    \label{fig:clahe_result}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{local_enhance_manual.png}
+    \caption{Гараар хийсэн}
+    \label{fig:clahe_result}
+  \end{subfigure}
+
+  \caption{CLAHE ашиглан local contrast сайжруулсан үр дүн. }
+  \label{fig:local_enhance}
+\end{figure}
+
+\paragraph{Давуу тал:}
+Global histogram equalization-аас ялгаатай нь CLAHE нь локал хэсэг бүрийн contrast-ийг тусад нь сайжруулдаг учир чимээ багасгаж, нарийн дэлгэрэнгүй мэдээллийг илүү сайн гаргаж авдаг. Гэвч энэ тохиолдолд Гараар хийсэн local enhancement-тай харьцуулахад сул үр дүн гаргасан байна.
+
+\section{Logic Operations}
+\label{sec:logic}
+
+Logic operations  Зураг \ref{fig:logic}-д AND үйлдлийн үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{logic_result_and.png}
+    \caption{Logic AND — results.}
+    \label{fig:logic_and}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0424(a)(rectangle).png}
+    \caption{Mask.}
+    \label{fig:mask}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0241(c)(einstein high contrast).png}
+    \caption{Einstein (high contrast).}
+    \label{fig:einstein}
+  \end{subfigure}
+
+  \caption{Examples of logic/ mask images used in the experiments.}
+  \label{fig:logic_operations}
+\end{figure}
+
+\section{Smoothing Linear Filters}
+\label{sec:smoothing}
+
+Smoothing filters нь зургийн чимээг багасгах, ирмэгийг зөөлрүүлэх зориулалттай. Янз бүрийн хэмжээтэй averaging kernel ашиглан smoothing хийсэн үр дүнг Зураг \ref{fig:smoothing}-д харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{smoothed_3x3.png}
+    \caption{3×3 kernel}
+    \label{fig:smooth3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{smoothed_9x9.png}
+    \caption{9×9 kernel}
+    \label{fig:smooth9}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{smoothed_35x35.png}
+    \caption{35×35 kernel}
+    \label{fig:smooth35}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{smoothed_5x5.png}
+    \caption{15x15 kernel}
+    \label{fig:smooth9}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{smoothed_15x15.png}
+    \caption{15x15 kernel}
+    \label{fig:smooth35}
+  \end{subfigure}
+
+  \caption{Янз бүрийн хэмжээтэй averaging filter ашиглан smoothing хийсэн үр дүн. Kernel хэмжээ ихсэх тусам зураг илүү бүдэгрэх боловч чимээ багасдаг.}
+  \label{fig:smoothing}
+\end{figure}
+
+\paragraph{Trade-off:}
+Kernel хэмжээ томорхтой зэрэгцэн чимээ багасдаг боловч зургийн нарийн мэдээлэл, ирмэг алдагдах эрсдэл нэмэгддэг. Optimal хэмжээ сонгох нь хэрэглээнээс хамаарна.
+
+\section{Median Filter}
+\label{sec:median}
+
+Median filter нь salt-and-pepper noise арилгахад маш үр дүнтэй. Averaging filter-аас ялгаатай нь median утгыг ашигладаг учир ирмэгийг илүү сайн хадгалдаг. Зураг \ref{fig:median}-д үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0335(a)(ckt_board_saltpep_prob_pt05).png}
+    \caption{Эх зураг (salt-pepper noise)}
+    \label{fig:median_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{med.png}
+    \caption{Median filter хийсэн}
+    \label{fig:median_result}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{builtin.png}
+    \caption{Built in function result}
+    \label{fig:median_result}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{diff.png}
+    \caption{Built in ба гараар хийсэн filter-ийн ялгаа}
+    \label{fig:median_result}
+  \end{subfigure}
+
+  \caption{Median filter ашиглан salt-and-pepper noise арилгасан үр дүн. Ирмэгүүд хадгалагдсаар чимээ бараг бүрэн устсан байна.}
+  \label{fig:median}
+\end{figure}
+
+\section{Sharpening using Laplacian}
+\label{sec:laplacian}
+
+Laplacian оператор нь хоёр дахь зэргийн уламжлал ашиглан ирмэг илрүүлж зургийг хурцлах арга юм. Зураг \ref{fig:laplacian}-д янз бүрийн Laplacian kernel-ийн үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0338(a)(blurry_moon).png}
+    \caption{Эх зураг}
+    \label{fig:lap_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{lap1.png}
+    \caption{Laplacian 1}
+    \label{fig:lap1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{lap2.png}
+    \caption{Laplacian 2}
+    \label{fig:lap2}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{lap3.png}
+    \caption{Sharpened}
+    \label{fig:lap3}
+  \end{subfigure}
+
+  \caption{Laplacian оператор ашиглан зургийг хурцалсан үр дүн. Ирмэгүүд тодорхой болж, бүдэг зураг илүү нарийвчилсан болсон байна.}
+  \label{fig:laplacian}
+\end{figure}
+
+\paragraph{Үр дүн:}
+Laplacian filter нь ирмэгийг илрүүлж, тэдгээрийг эх зурагт нэмснээр хурц, тод үр дүн гаргаж байна. Энэ арга нь бүдэг зургийг сайжруулахад маш үр дүнтэй.
+
+\section{Sobel Edge Detection}
+\label{sec:sobel}
+
+Sobel оператор нь нэг дэх зэргийн уламжлал (gradient) ашиглан ирмэг илрүүлдэг. Зураг \ref{fig:sobel}-д Sobel edge detection-ийн үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0219(rose1024).png}
+    \caption{Эх зураг}
+    \label{fig:sobel_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{sobel.png}
+    \caption{Sobel edge detection}
+    \label{fig:sobel_result}
+  \end{subfigure}
+
+  \caption{Sobel оператор ашиглан ирмэг илрүүлсэн үр дүн. Объектын хил, хэлбэр тодорхой илэрч байна.}
+  \label{fig:sobel}
+\end{figure}
+
+\section{Notch Filtering}
+\label{sec:notch}
+
+Notch filter нь давтамжийн орчинд (frequency domain) periodic noise арилгах арга юм. Fourier transform хийж, чимээний давтамжийг шүүж, inverse transform хийн цэвэр зураг гаргана. Зураг \ref{fig:notch}-д notch filter-ийн үр дүнг харуулав.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig0237(a)(characters test pattern)_POST.png}
+    \caption{Эх зураг (periodic noise)}
+    \label{fig:notch_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{spectrum.png}
+    \caption{Frequency spectrum}
+    \label{fig:notch_spectrum}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{notch_filtered.png}
+    \caption{Notch filter хийсэн}
+    \label{fig:notch_result}
+  \end{subfigure}
+
+  \caption{Notch filter ашиглан periodic noise арилгасан үр дүн. Frequency domain дээр чимээний цэгүүдийг илрүүлж шүүснээр цэвэр зураг гаргаж авсан.}
+  \label{fig:notch}
+\end{figure}
+
+\paragraph{Давуу тал:}
+Notch filtering нь spatial domain-д арилгах боломжгүй periodic pattern чимээг (жишээ нь scan lines, moiré patterns) маш үр дүнтэй арилгадаг.
+
+\section{Нийлмэл Үр Дүн}
+\label{sec:summary}
+
+Энэхүү лабораторийн ажлын хүрээнд дүрс боловсруулах олон янзын аргуудыг практикт хэрэгжүүлж, тус бүрийн давуу тал, хязгаарлалтыг судалсан. Intensity resolution ба spatial resolution нь зургийн чанарын үндсэн үзүүлэлт болох нь тодорхой харагдсан. Image interpolation, contrast stretching, histogram processing зэрэг аргууд нь зургийг визуалаар сайжруулахад чухал үүрэг гүйцэтгэдэг. Smoothing болон sharpening filters нь зөрчилтэй зорилготой боловч хослуулан ашигласнаар оптимал үр дүн гаргаж болдог. Frequency domain techniques болох notch filtering нь spatial domain-д шийдвэрлэх боломжгүй асуудлуудыг шийддэг давуу талтай. Эдгээр аргуудыг ойлгож, хэрэглээндээ тохируулан хэрэгжүүлэх нь дүрс боловсруулалтын үр дүнтэй судалгаа явуулах үндэс суурь болно.

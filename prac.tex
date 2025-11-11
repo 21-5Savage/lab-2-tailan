@@ -1,0 +1,762 @@
+\section{Spatial and Intensity Resolution}
+Энэ хэсэгт 256 gray level-тэй эхний grayscale зургийг тодорхой тооны gray level-д багасгах (quantization) аргыг хэрэгжүүлэв. 
+Энэхүү үйлдэл нь зурган дахь пикселийн утгыг хүссэн түвшинд хязгаарлаж, хязгаар давсан утгатай пикселүүдийг бүлэглэх логикоор ажиллаж байна.
+
+\subsection{Python кодын хэрэгжилт}
+\begin{lstlisting}[language=Python, caption=Image Quantization Logic, frame=single]
+    # Түвшнүүд
+    levels = [128, 64, 32, 16, 8, 4, 2]
+
+    # Түвшин тус бүрт
+    for L in levels:
+        quantized_img = img.copy()
+
+        # Бүлэглэж буй логик
+        factor = 256 / L
+        quantized_img = np.floor(quantized_img / factor) * (255 / (L - 1))
+        
+        quantized_img = quantized_img.astype(np.uint8)
+        
+\end{lstlisting}
+
+
+\subsection{Тайлбар}
+\begin{itemize}
+    \item \textbf{factor}: Тухайн Level-ийн буюу шатлалын хэмжээ. Дээрх жишээнд шатлалын хэмжээ 16 болно.
+    \item \textbf{np.floor(I / factor)}: Пикселийн утгыг бүхэл тоонд шилжүүлж, gray level-ийг шатлана. 
+    \item \textbf{* (255 / (L-1))}: Шатласан утгыг 0–255 хүрээнд дахин масштаблана.  
+    \item \textbf{astype(np.uint8)}: Эцсийн зургийг 8-bit формат руу хөрвүүлж хадгална. 
+\end{itemize}
+
+
+\section{Image Interpolation}
+Доорх хэсэг bilinear interpolation аргыг ашиглан зургийн хэмжээг томруулах үйлдлийг хэрэгжүүлэв. Хэрэгжүүлэлтэд эх зургийн 128×128 хэмжээг 1024×1024 болгон өрөгтгөв.
+
+\subsection{Python кодын хэрэгжилт}
+\begin{lstlisting}[language=Python, caption=Bilinear Interpolation Core Logic, frame=single]
+old_height, old_width = image.shape
+output = np.zeros((new_height, new_width), dtype=image.dtype)
+
+scale_x = (old_width - 1) / (new_width - 1)
+scale_y = (old_height - 1) / (new_height - 1)
+
+for i in range(new_height):
+    for j in range(new_width):
+        x = j * scale_x
+        y = i * scale_y
+        
+        x1 = int(x)
+        y1 = int(y)
+        x2 = min(x1 + 1, old_width - 1)
+        y2 = min(y1 + 1, old_height - 1)
+        
+        wx = x - x1
+        wy = y - y1
+        
+        I11 = image[y1, x1]  # Дээд зүүн
+        I12 = image[y1, x2]  # Дээд баруун
+        I21 = image[y2, x1]  # Доод зүүн
+        I22 = image[y2, x2]  # Доод баруун
+        
+        I1 = I11 * (1 - wx) + I12 * wx  
+        I2 = I21 * (1 - wx) + I22 * wx  
+        
+        output[i, j] = I1 * (1 - wy) + I2 * wy
+
+return output
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+
+\begin{itemize}
+    \item \textbf{scale\_x, scale\_y}: Хуучин болон шинэ зургийн харьцааг илэрхийлэх харьцаа
+    
+    \item \textbf{x = j * scale\_x, y = i * scale\_y}: Шинэ зурагт байгаа (i, j) пикселийн байршлыг хуучин зургийн (x, y) координат руу шилжүүлнэ. 
+    
+    \item \textbf{x1, y1, x2, y2}: Координатын эргэн тойрон дахь дөрвөн хамгийн ойрын бүхэл тоот пикселүүдийн байршил. x1, y1 нь зүүн дээд булан, x2, y2 нь баруун доод булан.
+    
+    \item \textbf{wx, wy}: Жингийн коэффициентүүд. Жишээ нь: wx = 0.3 гэдэг нь зүүн талын пикселээс 30\% зайтай байна гэсэн үг.
+    
+    \item \textbf{I11, I12, I21, I22}: Дөрвөн хөрш пикселийн intensity утгууд. Эдгээрийг жинлэсэн дунджаар нийлүүлж шинэ утгыг гаргана.
+    
+    \item \textbf{output[i,j] = I1 * (1-wy) + I2 * wy}: Эцсийн алхам. Дээд болон доод шугамын утгуудыг босоо чиглэлд wy жингээр нийлүүлж эцсийн пикселийн утгыг гаргана.
+\end{itemize}
+
+\textbf{Алгоритмын давуу тал}: Nearest neighbor-оос илүү гөлгөр, үр дүн нь дунд зэргийн чанартай. Өргөтгөсөн зурагт блоктой эффект багатай, өнгөний шилжилт зөөлөн байна.
+
+\section{Contrast Stretching}
+Энэ хэсэгт зургийн contrast stretching болон binary threshold аргуудыг хэрэгжүүлэв.
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{(Contrast Stretching)}
+\begin{lstlisting}[language=Python, caption=Контраст сунгалтын логик]
+def contrast_stretch(image, r1, s1, r2, s2):
+    output = np.zeros_like(image)
+    height, width = image.shape
+    
+    # Пиксел бүрийг боловсруулах
+    for i in range(height):
+        for j in range(width):
+            pixel = image[i, j]
+            # Гурван муруйн хэсэг
+            if 0 <= pixel <= r1:
+                output[i, j] = (s1 / r1) * pixel
+            elif r1 < pixel <= r2:
+                output[i, j] = ((s2 - s1) / (r2 - r1)) * (pixel - r1) + s1
+            elif r2 < pixel <= 255:
+                output[i, j] = ((255 - s2) / (255 - r2)) * (pixel - r2) + s2
+    
+    return output
+\end{lstlisting}
+
+\subsubsection{(Binary Threshold)}
+\begin{lstlisting}[language=Python, caption=Binary threshold логик]
+def threshold_binary(image, threshold_value):
+    output = np.zeros_like(image)
+    height, width = image.shape
+    
+    # Пиксел бүрийг босготой харьцуулах
+    for i in range(height):
+        for j in range(width):
+            if image[i, j] >= threshold_value:
+                output[i, j] = 255  # Цагаан
+            else:
+                output[i, j] = 0    # Хар
+    
+    return output
+\end{lstlisting}
+
+\subsubsection{Параметрүүд}
+\begin{lstlisting}[language=Python, caption=Параметрүүд болон гүйцэтгэл]
+# Контраст сунгалтын оролцогч цэгүүд
+r1, s1 = 80, 50  
+r2, s2 = 120, 255
+threshold_val = int(np.sum(img) // (img.shape[0] * img.shape[1]))
+stretched_image = contrast_stretch(img, r1, s1, r2, s2)
+binary_thresh = threshold_binary(img, threshold_val)
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{(Contrast Stretching)}
+\begin{itemize}
+    \item \textbf{r1, s1, r2, s2}: Хяналтын цэгүүд. (r1, s1) болон (r2, s2) нь хувиргалтын муруйн гол цэгүүд бөгөөд, эдгээр цэгүүдээр үүсэх муруйг ашиглан дүрсэд хувиргалт хийнэ:
+    
+    \item \textbf{Эхний хэсэг (0 ≤ pixel ≤ r1)}: Харанхуй пикселүүдийн бүс. $(s_1 / r_1) \times pixel$ томъёогоор тооцоолж, харанхуй хэсэгт өөрчлөлт оруулна. Налуу бага учир бага өөрчлөлт орно.
+    
+    \item \textbf{Дунд хэсэг (r1 < pixel ≤ r2)}: Гол ажлын бүс. $\frac{s_2 - s_1}{r_2 - r_1} \times (pixel - r_1) + s_1$ томъёогоор өндөр налуугаар тэлнэ. Энэ хэсэгт contrast хамгийн их нэмэгддэг.
+    
+    \item \textbf{Эцсийн хэсэг (r2 < pixel ≤ 255)}: Гэрэлтэй пикселүүдийн бүс. $\frac{255 - s_2}{255 - r_2} \times (pixel - r_2) + s_2$ Харанхуй бүстэй төстэй налуутай байх учир их өөрчлөлт орохгүй.
+\end{itemize}
+
+\textbf{Жишээ}: r1=80, s1=50, r2=120, s2=255 параметрүүдээр pixel=100 утгыг боловсруулбал:
+\begin{itemize}
+    \item 80 < 100 ≤ 120 тул дунд хэсгийн томъёо ашиглана
+    \item $\frac{255-50}{120-80} \times (100-80) + 50 = \frac{205}{40} \times 20 + 50 = 152.5 \approx 153$
+    \item Анхны 100 утга 153 болж, контраст нэмэгдсэн байна
+\end{itemize}
+
+\subsubsection{(Binary Threshold)}
+
+Binary threshold нь зургийг хар цагаан хоёр өнгө рүү зургыг хөрвүүлнэ. Contrast stretch хийсэн зурагт нэмэлт боловсруулалт болгон ашиглана.
+
+\begin{itemize}
+    \item \textbf{threshold\_value}: Босгоны утга. 
+    
+    \item \textbf{Шалгах нөхцөл}: Хэрэв пиксел босгоос их буюу тэнцүү бол 255 (цагаан), бусад тохиолдолд 0 (хар) гэж тогтооно.
+\end{itemize}
+
+\section{Gray-Level Slicing}
+Энэ хэсэгт саарал түвшний зүсэлт (gray level slicing) аргыг хэрэгжүүлэв. 
+
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{(Flat Slicing)}
+\begin{lstlisting}[language=Python, caption=Flat slicing логик]
+def flat_slice(img, mini, maxi):
+    width, height = img.shape
+    out = img.copy()
+    
+    # Пиксел бүрийг шалгах
+    for i in range(0, width):
+        for j in range(0, height):
+            if out[i][j] < mini:
+                out[i][j] = 20  
+            elif out[i][j] > maxi:
+                out[i][j] = 20  
+            # mini <= pixel <= maxi бол хэвээр үлдээнэ
+        
+    return out
+\end{lstlisting}
+
+\subsubsection{(Background Preservation Slicing)}
+\begin{lstlisting}[language=Python, caption=Background preservation slicing логик]
+def slicer(img, mini, maxi):
+    width, height = img.shape
+    out = img.copy()
+    
+    for i in range(0, width):
+        for j in range(0, height):
+            if out[i][j] > mini and out[i][j] < maxi:
+                out[i][j] = 235 
+            else:
+                out[i][j] = out[i][j]  
+    
+    return out
+\end{lstlisting}
+
+\subsubsection{Параметрүүд}
+\begin{lstlisting}[language=Python, caption=Параметрүүд болон гүйцэтгэл]
+# Intensity хүрээг тодорхойлох
+mini, maxi = 155, 255
+
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{(Flat Slicing)}
+
+Flat slicing нь сонгосон intensity хүрээг онцлон харуулж, бусад бүх пикселүүдийг нэг тогтмол бага утгаар солино.
+
+\begin{itemize}
+    \item \textbf{mini, maxi}: Сонгосон intensity хүрээний доод болон дээд хязгаар. Жишээ: [155, 255] гэдэг нь цайвар пикселүүдийг онцолж байна.
+    
+    \item \textbf{Доод нөхцөл (pixel < mini)}: Хүрээнээс доогуур пикселүүдийг бараан утгаар солино.
+    
+    \item \textbf{Дээд нөхцөл (pixel > maxi)}: Хүрээнээс дээгүүр пикселүүдийг бараан утгаар солино.
+    
+    \item \textbf{Хүрээний дотор (mini ≤ pixel ≤ maxi)}: Эдгээр пикселүүд хэвээрээ үлдэж, зургийн гол объект болно.
+    
+\end{itemize}
+
+\textbf{Жишээ}: Хэрэв pixel=200 бол 155 < 200 < 255 учир хэвээр үлдэнэ. Харин pixel=100 бол 100 < 155 учир 20 болно.
+
+\subsubsection{(Background Preservation Slicing)}
+
+Энэ арга нь сонгосон хүрээний пикселүүдийг гэрэлтүүлж онцолдог боловч арын талын мэдээллийг устгахгүй, ерөнхий бүтцийг хадгалж, зөвхөн сонгосон хэсгийг тодруулна.
+
+\begin{itemize}
+    \item \textbf{Хүрээний нөхцөл (mini < pixel < maxi)}: Энэ хүрээний пикселүүдийг 235 гэсэн маш гэрэл утгаар солино. Тэдгээр тод, цагаан өнгөтэй болж онцогдоно.
+    
+    \item \textbf{Бусад пикселүүд}: Өөрчлөлтгүй хэвээр үлдэнэ. Арын талын бүтэц, мэдээлэл алдагдахгүй.
+
+\end{itemize}
+
+\section{Bit-plane Slicing}
+\subsection{Ерөнхий тайлбар}
+
+Энэ хэсэгт bit plane slicing аргыг хэрэгжүүлэв. 
+Bit plane slicing нь зургийн пиксел бүрийн 8 битийн төлөөлөлийг тус тусад нь салгаж харуулсан бөгөөд доорх жишээнд бага битийн чимээ ихтэй дүрс ашигласан болно.
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{(Bit Plane Slicing)}
+\begin{lstlisting}[language=Python, caption=Bit plane slicing логик]
+def bit_plane_slice(img, bit_position):
+    output = np.zeros_like(img)
+    height, width = img.shape
+    
+    # Пиксел бүрийн тухайн битийг ялгах
+    for i in range(height):
+        for j in range(width):
+            bit_value = (img[i, j] >> bit_position) & 1
+            output[i, j] = bit_value * 255
+    
+    return output
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{Битийн давхаргын ойлголт}
+
+8-бит саарал зурагт пиксел бүр 0-255 утгатай бөгөөд үүнийг хоёртын тооллын системд 8 битээр илэрхийлнэ. Жишээ нь: 197 = 11000101$_2$
+
+\begin{itemize}
+    \item \textbf{Bit 7 (MSB)}: $2^7 = 128$ - Хамгийн чухал бит, зургийн үндсэн бүтцийг агуулна
+    \item \textbf{Bit 6}: $2^6 = 64$ - Дунд зэргийн чухал мэдээлэл
+    \item \textbf{Bit 5}: $2^5 = 32$ - Нарийн ширхэгтэй дэлгэрэнгүй мэдээлэл
+    \item \textbf{Bit 4}: $2^4 = 16$ - Бага зэргийн нарийн ширхэг
+    \item \textbf{Bit 3}: $2^3 = 8$ - Маш бага нөлөөтэй
+    \item \textbf{Bit 2}: $2^2 = 4$ - Дуу чимээтэй ойролцоо
+    \item \textbf{Bit 1}: $2^1 = 2$ - Дуу чимээ
+    \item \textbf{Bit 0 (LSB)}: $2^0 = 1$ - Хамгийн бага чухал бит, санамсаргүй дуу чимээ
+\end{itemize}
+
+\subsubsection{Алгоритмын тайлбар}
+
+\begin{itemize}
+    \item \textbf{bit\_position}: Ялгах битийн байршил (0-7). Bit 0 нь хамгийн баруун бит (LSB), Bit 7 нь хамгийн зүүн бит (MSB).
+    
+    \item \textbf{img[i, j] >> bit\_position}: Битийн баруун шилжилт үйлдэл. Пикселийн утгыг баруун тийш bit\_position удаа шилжүүлж, хэрэгтэй битийг хамгийн баруун байрлалд авчирна.
+    
+    \item \textbf{\& 1}: AND үйлдэл. Хамгийн баруун битийг ялгаж авна. Бусад битүүдийг 0 болгоно.
+    
+    \item \textbf{bit\_value * 255}: Битийн утга 0 эсвэл 1 байна. Үүнийг 255-аар үржүүлж харагдахуйц болгоно (0 → хар, 1 → цагаан).
+\end{itemize}
+
+
+\subsubsection{Битийн давхаргуудын шинж чанар}
+
+\begin{itemize}
+    \item \textbf{Дээд битүүд (Bit 7, 6, 5)}: Зургийн үндсэн бүтэц, дүрс, хэлбэрийг агуулна. Эдгээр давхарга нь анхны зургийг таних боломжтой.
+    
+    \item \textbf{Дунд битүүд (Bit 4, 3)}: Нарийн ширхэгтэй мэдээлэл, texture, жижиг хэв маягийг агуулна.
+    
+    \item \textbf{Доод битүүд (Bit 2, 1, 0)}: Санамсаргүй дуу чимээ шиг харагдана. Эдгээрийг устгасан ч зураг таних боломжтой.
+\end{itemize}
+
+\section{Histogram Processing}
+Энэ хэсэгт зургийн histogram болон normalized histogram тооцоолох аргыг хэрэгжүүлэв.
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{(Standard Histogram)}
+\begin{lstlisting}[language=Python, caption=Histogram тооцоолох логик]
+def calculate_histogram(image):
+    histogram = np.zeros(256, dtype=int)
+    height, width = image.shape
+    
+    for i in range(height):
+        for j in range(width):
+            pixel_value = image[i, j]  
+            histogram[pixel_value] += 1
+    
+    return histogram
+\end{lstlisting}
+
+\subsubsection{(Normalized Histogram)}
+\begin{lstlisting}[language=Python, caption=Нормчлогдсон Histogram логик]
+def calculate_normal_histogram(image):
+    histogram = np.zeros(256, dtype=float)
+    height, width = image.shape
+    total_pixels = height * width  # Нийт пикселийн тоо
+    
+    for i in range(height):
+        for j in range(width):
+            pixel_value = image[i, j]
+            histogram[pixel_value] += 1
+    
+    histogram = histogram / total_pixels
+    return histogram
+\end{lstlisting}
+
+\subsubsection{Дүрслэх}
+\begin{lstlisting}[language=Python, caption=Matplotlib ашиглан харуулах]
+# Энгийн Histogram
+hist = calculate_histogram(img)
+plt.figure(figsize=(10, 6))
+plt.bar(range(256), hist, width=1, color='black')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Frequency')
+plt.title('Histogram')
+plt.xlim(0, 255)
+plt.savefig('histogram_matplotlib.png')
+plt.show()
+
+# Нормчлогдсон Histogram
+normal_hist = calculate_normal_histogram(img)
+plt.figure(figsize=(10, 6))
+plt.bar(range(256), normal_hist, width=1, color='red')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Probability')
+plt.title('Normalized Histogram')
+plt.xlim(0, 255)
+plt.savefig('histogram_normalized.png')
+plt.show()
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{(Standard Histogram)}
+
+\begin{itemize}
+    \item \textbf{histogram = np.zeros(256, dtype=int)}: 256 Утга авч болох хүснэгт үүсгэнэ.
+    
+    \item \textbf{histogram[pixel\_value] += 1}: Пиксел бүрийн утгыг уншиж, тухайн харгалзах хүснэгтийн нүдийг 1-ээр нэмэгдүүлнэ. 
+    
+    \item \textbf{Үр дүн}: 256 элементтэй хүснэгт. Жишээ нь: histogram[100] = 350 гэдэг нь зурагт intensity 100-тай 350 пиксел байна гэсэн үг.
+\end{itemize}
+
+\textbf{Жишээ}: 4×4 хэмжээтэй жижиг зурагт:
+\begin{verbatim}
+[50, 50, 100, 100]
+[50, 150, 100, 200]
+[50, 150, 150, 200]
+[50, 150, 150, 200]
+\end{verbatim}
+Histogram: histogram[50]=5, histogram[100]=3, histogram[150]=4, histogram[200]=3, бусад=0
+
+\subsubsection{(Normalized Histogram)}
+
+Нормчлогдсон Histogram нь давтамжийг магадлал болгон хувиргадаг.
+
+\begin{itemize}
+    \item \textbf{total\_pixels = height * width}: Зургийн нийт пикселийн тоо. Жишээ: 512×512 = 262,144 пиксел.
+    
+    \item \textbf{histogram = histogram / total\_pixels}: Давтамж бүрийг нийт тоонд хувааж, магадлалын тархалт гаргана. 
+
+\end{itemize}
+
+\textbf{Жишээ}: Дээрх 4×4 зурагт (нийт 16 пиксел):
+\begin{itemize}
+    \item $p(50) = 5/16 = 0.3125$ (31.25\%)
+    \item $p(100) = 3/16 = 0.1875$ (18.75\%)
+    \item $p(150) = 4/16 = 0.25$ (25\%)
+    \item $p(200) = 3/16 = 0.1875$ (18.75\%)
+\end{itemize}
+
+
+\section{Local Enhancement}
+Энэхүү кодоор нь local enhancement техникийг хэрэгжүүлэв.
+
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{(Local Enhancement)}
+\begin{lstlisting}[language=Python, caption=Local Enhancement 3x3 Logic, frame=single]
+def local_enhance_3x3(img, x, y, enhancement_factor=15):
+    kernel_size = 1  # 3x3 орчин (1 пикселийн радиус)
+    
+    neighborhood = []
+    for i in range(x - kernel_size, x + kernel_size + 1):
+        for j in range(y - kernel_size, y + kernel_size + 1):
+            neighborhood.append(img[i, j])
+    
+    center_pixel = img[x, y]  # Төвийн пиксел
+    local_mean = np.mean(neighborhood)  # Орчны дундаж
+    local_std = np.std(neighborhood)  # Орчны стандарт хазайлт
+    
+    if center_pixel < local_mean:
+        enhanced_value = 0  # Харанхуй болгох
+    else:
+        enhanced_value = 255  # Гэрэл болгох
+    
+    return enhanced_value
+\end{lstlisting}
+
+
+\subsection{Тайлбар}
+\begin{itemize}
+    \item \textbf{kernel\_size = 1}: 3x3 хэмжээтэй цонх (kernel) ашиглана. 1 нь төвөөс 1 пиксел зайтай орчныг тодорхойлно.
+    \item \textbf{neighborhood}: Тухайн пикселийн эргэн тойрны 3x3 хэмжээтэй 9 пикселийн жагсаалт. Эндээс утгуудаас дундаж болон стандарт хазайлт тооцоолно.
+    \item \textbf{local\_mean}: Орчны дундаж утга.
+    \item \textbf{local\_std}: Орчны стандарт хазайлт. 
+    \item \textbf{Босго}: Хэрэв төвийн пиксел орчны дундажаас бага бол 0 (хар), эс тэгвээс 255 (цагаан) болгоно. Энэ нэг ёсондоо binary thresholding болно.
+\end{itemize}
+
+\section{Enhancement using Arithmetic / Logic Operations}
+\subsection{Image Logic Operations алгоритмын ерөнхий тойм}
+
+Доорх хэсэгт логик үйлдлүүд (AND, OR) болон урвуу үйлдэл хийх код хэрэгжүүлэв. 
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{Invert функц}
+\begin{lstlisting}[language=Python, caption=Image Inversion, frame=single]
+def invert(img):
+    out = img.copy()
+    for i in range(height):
+        for j in range(width):
+            out[i][j] = 255 - img[i][j] 
+    return out
+\end{lstlisting}
+
+\subsubsection{Logic AND үйлдэл}
+\begin{lstlisting}[language=Python, caption=Logic AND Operation, frame=single]
+def logic_and(img, mask):
+    out = img.copy()
+    for i in range(height):
+        for j in range(width):
+            if mask[i][j] & img[i][j]:
+                out[i][j] = img[i][j]
+            else:
+                out[i][j] = mask[i][j]
+    return out
+\end{lstlisting}
+
+\subsubsection{Logic OR үйлдэл}
+\begin{lstlisting}[language=Python, caption=Logic OR Operation, frame=single]
+def logic_or(img, mask):
+    out = img.copy()
+    for i in range(height):
+        for j in range(width):
+            if (mask[i][j]==0) | (img[i][j]==0): 
+                out[i][j] = img[i][j]
+            else:
+                out[i][j] = mask[i][j]
+    return out
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{Invert функц}
+\begin{itemize}
+    \item \textbf{255 - img[i][j]}: Пикселийн урвуу утга. Цагаан хар болж, хар цагаан болно.
+\end{itemize}
+
+\subsubsection{Logic AND үйлдэл}
+\begin{itemize}
+    \item \textbf{mask[i][j] \& img[i][j]}: Хоёр утга хоёулаа 0-ээс ялгаатай бол үнэн.
+
+\end{itemize}
+
+\subsubsection{Logic OR үйлдэл}
+\begin{itemize}
+    \item \textbf{(mask[i][j]==0) | (img[i][j]==0)}: Аль нэг нь 0 байвал нөхцөл биелнэ.
+\end{itemize}
+
+\section{Smoothing Linear Filters}
+Энэхүү код нь зургийг smooth (гөлгөр) болгох алгоритм юм. 
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{Manual Smooth функц}
+\begin{lstlisting}[language=Python, caption=Image Smoothing Logic, frame=single]
+def manual_smooth(img, kernel_size):
+    output = np.zeros_like(img, dtype=np.float32)
+    half_size = kernel_size // 2
+    
+    for i in range(height):
+        for j in range(width):
+            total = 0
+            count = 0
+            
+            for ki in range(-half_size, half_size + 1):
+                for kj in range(-half_size, half_size + 1):
+                    ni, nj = i + ki, j + kj
+                    
+                    # Зургийн хүрээнд байгаа эсэхийг шалгах
+                    if 0 <= ni < height and 0 <= nj < width:
+                        total += img[ni, nj]
+                        count += 1
+            
+            # Дундаж утгыг тооцоолох
+            output[i, j] = total / count if count > 0 else 0
+    
+    return output.astype(np.uint8)
+\end{lstlisting}
+
+\subsubsection{Kernel үүсгэх функц}
+\begin{lstlisting}[language=Python, caption=Create Smoothing Kernels, frame=single]
+def create_smoothing_kernels():
+    kernel_sizes = [3, 5, 9, 15, 35]  # Янз бүрийн хэмжээ
+    kernels = {}
+    
+    for size in kernel_sizes:
+        # Бүх элемент нь ижил утгатай kernel
+        kernel = np.ones((size, size), dtype=np.float32) / (size * size)
+        kernels[size] = kernel
+    
+    return kernels
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{Manual Smooth функц}
+\begin{itemize}
+    \item \textbf{half\_size = kernel\_size // 2}: Kernel-ийн радиус. Жишээ нь 5x5 kernel бол радиус нь 2 болно.
+    \item \textbf{total / count}: Орчны пикселүүдийн дундаж утга. Энэ нь төвийн пикселийн шинэ утга болно.
+    \item \textbf{0 <= ni < height}: Зургийн захаас гарахгүй байхыг шалгана.
+\end{itemize}
+
+\subsubsection{Kernel үүсгэх функц}
+\begin{itemize}
+    \item \textbf{np.ones((size, size))}: Бүх элемент нь 1 байх матриц үүсгэнэ.
+    \item \textbf{/ (size * size)}: Дундаж авахын тулд нийт элементийн тоонд хувааж normalize хийнэ.
+\end{itemize}
+\subsubsection{Жишээ нь}
+\begin{itemize}
+    \item \textbf{3x3 kernel}: бүх элемент 1/9 утгатай болно.
+\end{itemize}
+
+\section{Median Filter}
+Энэхүү код нь зураг дахь salt-and-pepper дуу чимээг арилгах хоёр фильтрийг хэрэгжүүлдэг. Average filter нь орчны дундажаар, Median filter нь орчны дунд утгаар пикселийг солино. Median filter нь дуу чимээг илүү сайн арилгадаг.
+
+\subsection{Python кодын хэрэгжилт}
+
+\subsubsection{Average Filter функц}
+\begin{lstlisting}[language=Python, caption=Average Filter Logic, frame=single]
+def avg(img, x, y):
+    sum = 0
+    for i in range(x - 1, x + 2):
+        for j in range(y - 1, y + 2):
+            sum += img[i][j]
+    return sum / 9 
+\end{lstlisting}
+
+\subsubsection{Median Filter функц}
+\begin{lstlisting}[language=Python, caption=Median Filter Logic, frame=single]
+def median(img, x, y):
+    buffer = []
+    for i in range(x - 1, x + 2):
+        for j in range(y - 1, y + 2):
+            buffer.append(img[i][j])
+    
+    buffer.sort() 
+    return buffer[4]  
+
+\end{lstlisting}
+
+\subsubsection{Filter-үүдийг хэрэглэх}
+\begin{lstlisting}[language=Python, caption=Applying Filters, frame=single]
+buffer = np.zeros_like(img, dtype=np.float32)
+buffer_med = np.zeros_like(img, dtype=np.float32)
+
+for i in range(1, dim[0] - 1):
+    for j in range(1, dim[1] - 1):
+        buffer[i][j] = avg(img, i, j)  # Average
+        buffer_med[i][j] = median(img, i, j)  # Median
+
+dst = cv2.medianBlur(img, 3)
+\end{lstlisting}
+
+\subsection{Тайлбар}
+
+\subsubsection{Average Filter}
+\begin{itemize}
+    \item \textbf{sum / 9}: 3x3 орчны 9 пикселийн дундаж утга. Энэ нь дуу чимээг зөөлрүүлнө.
+    \item Алдаа: дуу чимээний утга (0 эсвэл 255) дундажд нөлөөлж, зураг бүдгэрнэ.
+\end{itemize}
+
+\subsubsection{Median Filter}
+\begin{itemize}
+    \item \textbf{buffer.sort()}: Орчны утгуудыг эрэмбэлнэ. Жишээ: [0, 50, 60, 70, 80, 90, 100, 110, 255].
+    \item \textbf{buffer[4]}: Эрэмбэлсэн жагсаалтын дунд утга (5 дахь элемент). Жишээн дээрх дунд утга нь 80 болно.
+    \item Давуу тал: хэт их эсвэл багатай утгуудыг үл тоомсорлож, salt-and-pepper дуу чимээг үр дүнтэй арилгана.
+\end{itemize}
+
+\subsubsection{Харьцуулалт}
+\begin{itemize}
+    \item \textbf{cv2.medianBlur()}: OpenCV-ийн optimize хийгдсэн median filter. Илүү хурдан ажиллана.
+    \item \textbf{dst - buffer\_med}: Manual болон built-in функцийн ялгаа. Захын пикселүүдийн боловсруулалтад ялгаа гарч болно.
+\end{itemize}
+
+\section{Using Second-Derivative for Image Sharpening}
+Ирмэг илрүүлэхэд түгээмэл ашиглагддаг хоёр дугаар эрэмбийн уламжлал (Second-Derivative) ашиглан зургийг хурцлах аргыг хэрэгжүүлэв.
+\begin{lstlisting}[language=Python, caption=Core Logic, frame=single]
+laplacian_kernel_1 = np.array([[0, 1, 0],
+                            [1, -4, 1],
+                            [0, 1, 0]])
+laplacian_kernel_2 = np.array([[1, 1, 1],
+                                [1, -8, 1],
+                                [1, 1, 1]])
+def sharpening(img, x, y, kernel=0):
+    if x < 1 or x >= img.shape[0] - 1 or y < 1 or y >= img.shape[1] - 1:
+        return img[x][y]
+    
+    val = 0
+    for i in range(0, 3):
+        for j in range(0, 3):
+            val += laplacian[kernel][i][j] * img[x - 1 + i][y - 1 + j]
+    
+    return np.clip(val, 0, 255)
+\end{lstlisting}
+\subsubsection{Тайлбар}
+\begin{itemize}
+    \item \textbf{laplacian\_kernel\_1, laplacian\_kernel\_2}: Хоёр төрлийн Laplacian kernel. Kernel ийн нийлбэр  учир ижил хөрштэй пикселүүд  буюу хар өөр буюу ирмэг байх магадлалтай пикселүүд 0 ээс өөр буюу гэрэлтэй болж хувирна.
+
+\end{itemize}
+
+\section{Unsharp Masking and High-boost Filtering}
+Энэхүү код нь зургийг тодруулахын тулд ашиглагдах unsharp masking болон high-boost filtering аргуудыг хэрэгжүүлэв.
+\begin{lstlisting}[language=Python, caption=Unsharp and high boost, frame=single]
+  # ...existing code...
+def unsharp_mask(img, ksize=3, amount=1.0):
+    """
+    Core logic: classic unsharp masking
+    img: 2D uint8 grayscale
+    ksize: odd blur kernel size (3,5,...)
+    amount: strength of added mask (e.g., 0.5..2.0)
+    """
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    sharpened = img.astype(np.int16) + np.round(amount * mask).astype(np.int16)
+    return np.clip(sharpened, 0, 255).astype(np.uint8)
+
+def high_boost(img, ksize=3, A=1.5):
+    """
+    Core logic: high-boost filtering
+    A: boost factor (A=1 -> unsharp mask baseline; A>1 -> boosted)
+    High-boost result = img + (A-1)*(img - blurred)
+    """
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    highboosted = img.astype(np.int16) + np.round((A - 1) * mask).astype(np.int16)
+    return np.clip(highboosted, 0, 255).astype(np.uint8)
+# ...existing code...
+``` 
+
+Brief: unsharp_mask adds a scaled high-frequency mask to the original; high_boost uses an amplification factor A to emphasize the mask (A>1 increases sharpening).
+def unsharp_mask(img, ksize=3, amount=1.0):
+
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    sharpened = img.astype(np.int16) + np.round(amount * mask).astype(np.int16)
+    return np.clip(sharpened, 0, 255).astype(np.uint8)
+
+def high_boost(img, ksize=3, A=1.5):
+    """
+    Core logic: high-boost filtering
+    A: boost factor (A=1 -> unsharp mask baseline; A>1 -> boosted)
+    High-boost result = img + (A-1)*(img - blurred)
+    """
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    highboosted = img.astype(np.int16) + np.round((A - 1) * mask).astype(np.int16)
+    return np.clip(highboosted, 0, 255).astype(np.uint8)
+
+\end{lstlisting}
+
+\section{Combining Spatial Enhancement Methods}
+ \begin{lstlisting}[language=Python, caption=Applying Filters, frame=single]
+    def unsharp_mask(img, ksize=3, amount=1.0):
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    sharpened = img.astype(np.int16) + np.round(amount * mask).astype(np.int16)
+    return np.clip(sharpened, 0, 255).astype(np.uint8)
+
+def high_boost(img, ksize=3, A=1.5):
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    highboosted = img.astype(np.int16) + np.round((A - 1) * mask).astype(np.int16)
+    return np.clip(highboosted, 0, 255).astype(np.uint8)
+
+def unsharp_mask(img, ksize=3, amount=1.0):
+
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    sharpened = img.astype(np.int16) + np.round(amount * mask).astype(np.int16)
+    return np.clip(sharpened, 0, 255).astype(np.uint8)
+
+def high_boost(img, ksize=3, A=1.5):
+    blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
+    mask = img.astype(np.int16) - blurred.astype(np.int16)
+    highboosted = img.astype(np.int16) + np.round((A - 1) * mask).astype(np.int16)
+\end{lstlisting}
+\section{Notch Filters}
+ \begin{lstlisting}[language=Python, caption=Applying Filters, frame=single]
+    def compute_spectrum(img):
+    dft = np.fft.fft2(img)
+    dft_shift = np.fft.fftshift(dft)
+    mag = 20 * np.log(np.abs(dft_shift) + 1)
+    return dft_shift, mag
+
+
+def gaussian_notch_mask(shape, notch_points, sigma=10):
+    rows, cols = shape
+    crow, ccol = rows // 2, cols // 2
+    y, x = np.ogrid[:rows, :cols]
+    mask = np.ones((rows, cols), dtype=np.float32)
+
+    for (u, v) in notch_points:
+        gauss1 = np.exp(-(((x - (ccol + u))**2 + (y - (crow + v))**2) / (2.0 * sigma * sigma)))
+        gauss2 = np.exp(-(((x - (ccol - u))**2 + (y - (crow - v))**2) / (2.0 * sigma * sigma)))
+        # attenuation: multiply by (1 - gaussian) so center of notch goes to 0
+        mask *= (1.0 - gauss1)
+        mask *= (1.0 - gauss2)
+
+    return mask
+\end{lstlisting}
+
