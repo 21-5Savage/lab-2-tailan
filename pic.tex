@@ -1,4 +1,4 @@
-\section{Intensity quantization (Кванталлал)}
+\section{Intensity quantization}
 \label{sec:intensity}
 
 Энэ хэсэгт зургийн intensity түвшний тоог өөр өөр утгаар хязгаарласан үр дүнг харуулав. Gray-level quantization нь зургийн мэдээллийг багасгаж, эх зурагт posterization буюу блок үүсэх эффект харагдана.
@@ -8,7 +8,7 @@
   \begin{subfigure}[b]{0.22\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0221(a)(ctskull-256).png}
-    \caption{Original}
+    \caption{Original\footnotemark}
     \label{fig:1intensity_orig}
   \end{subfigure}
   \hfill
@@ -66,8 +66,9 @@
   \caption{Эх зураг болон кванталсан хувилбарууд. Кванталлалын түвшин багасах тусам posterization илүү тод харагдана.}
   \label{fig:1intensity_all}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 2, Figure 2.21(a)}
 
-\paragraph{Дүн шинжилгээ:}
+\paragraph{Үр дүн:}
 Кванталсан level-ын тоо багасах тусам зурагт posterization шатлалт/блок эффект илүү тод илэрнэ: 2 болон 4 түвшин нь нягтаршил ихтэй битийн хязгаарлагдмал дүрслэл үүсгэж, нарийн градиент болон сул ялгарлууд алга болно. 8–16 түвшин нь ихэнх градиентыг авч үлдэнэ, харин 64–128 түвшин нь эх зурагт ойр үр дүн өгнө.
 
 
@@ -101,7 +102,7 @@ Bilinear interpolation аргыг ашиглан өөр өөр анхны хэм
   \caption{Bilinear interpolation аргаар томруулсан үр дүн. Анхны хэмжээ ихсэх тусам чанар сайжирна.}
   \label{fig:interpolation_comparison}
 \end{figure}
-\paragraph{Дүн шинжилгээ:}
+\paragraph{Үр дүн:}
 32×32 эх зураг хамгийн бүдэг ир дүн гаргасан бөгөөд pixelation илэрхий байна. 64×64 нь зарим нарийвчлалыг хадгалж чадсан боловч блур бага зэрэг үлдсэн. 128×128 эх зураг нь хамгийн тод үр дүн өгч, ирмэг болон текстурын мэдээлэл илүү сайн хадгалагдсан байна.
 
 
@@ -115,7 +116,7 @@ Contrast stretching нь бага contrast-той зургийн гэрэл, б�
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0310(b)(washed_out_pollen_image).png}
-    \caption{Эх зураг (бүдэг)}
+    \caption{Эх зураг (бүдэг)\footnotemark}
     \label{fig:contrast_orig}
   \end{subfigure}
   \hfill
@@ -136,8 +137,9 @@ Contrast stretching нь бага contrast-той зургийн гэрэл, б�
   \caption{Contrast stretching техник ашиглан бүдэг зургийг сайжруулсан үр дүн. Бараан ба цайвар хэсгүүд илүү тод ялгарах болсон.}
   \label{fig:contrast_stretch}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 3, Figure 3.10(b)}
 
-\paragraph{Үнэлгээ:}
+\paragraph{Үр дүн:}
 Эх зураг нь intensity value-ууд нарийн мужид (жишээ нь 50–150) төвлөрсөн байсан бол contrast stretching дараа 0–255 мужид тархаж гэрэлтэй болон бараан хэсгүүдийн ялгарал тодорхой болсон байна.
 
 \section{Gray-Level Slicing}
@@ -238,7 +240,7 @@ Bit-plane slicing нь пикселийн binary төлөөлөлийн тус �
   \label{fig:bitplane}
 \end{figure}
 
-\paragraph{Ажиглалт:}
+\paragraph{Үр дүн:}
 Өндөр bit plane-ууд (6, 7) нь зургийн үндсэн мэдээллийг тодорхой харуулж байхад доод bit plane-ууд (0, 1, 2) нь чимээ шиг санагддаг. Энэ техник нь data compression, steganography-д ашиглагддаг.
 
 \section{Histogram Processing}
@@ -284,7 +286,7 @@ Histogram нь зургийн intensity утгуудын тархалтыг ха
 \paragraph{Хэрэглээ:}
 Histogram analysis нь зургийн чанар үнэлэх, автомат threshold олох, түүх болон adaptive enhancement хийхэд ашиглагддаг.
 
-\section{Local Enhancement (CLAHE)}
+\section{Local Enhancement}
 \label{sec:local_enhance}
 
 Local enhancement нь зургийн локал хэсэг тус бүрийг орчны статистикт үндэслэн боловсруулах арга юм. CLAHE (Contrast Limited Adaptive Histogram Equalization) нь хамгийн түгээмэл local enhancement арга. Зураг \ref{fig:local_enhance}-д үр дүнг харуулав.
@@ -294,7 +296,7 @@ Local enhancement нь зургийн локал хэсэг тус бүрийг 
   \begin{subfigure}[b]{0.30\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0326(a)(embedded_square_noisy_512).png}
-    \caption{Эх зураг}
+    \caption{Эх зураг\footnotemark}
     \label{fig:local_orig}
   \end{subfigure}
   \hfill
@@ -312,11 +314,12 @@ Local enhancement нь зургийн локал хэсэг тус бүрийг 
     \label{fig:clahe_result}
   \end{subfigure}
 
-  \caption{CLAHE ашиглан local contrast сайжруулсан үр дүн. }
+  \caption{Local contrast хийж сайжруулсан үр дүн. }
   \label{fig:local_enhance}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 3, Figure 3.26(a)}
 
-\paragraph{Давуу тал:}
+\paragraph{Үр дүн:}
 Global histogram equalization-аас ялгаатай нь CLAHE нь локал хэсэг бүрийн contrast-ийг тусад нь сайжруулдаг учир чимээ багасгаж, нарийн дэлгэрэнгүй мэдээллийг илүү сайн гаргаж авдаг. Гэвч энэ тохиолдолд Гараар хийсэн local enhancement-тай харьцуулахад сул үр дүн гаргасан байна.
 
 \section{Logic Operations}
@@ -336,20 +339,22 @@ Logic operations  Зураг \ref{fig:logic}-д AND үйлдлийн үр дүн
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0424(a)(rectangle).png}
-    \caption{Mask.}
+    \caption{Mask\footnotemark[\value{footnote}].}
     \label{fig:mask}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.32\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0241(c)(einstein high contrast).png}
-    \caption{Einstein (high contrast).}
+    \caption{Einstein (high contrast)\footnotemark.}
     \label{fig:einstein}
   \end{subfigure}
 
   \caption{Examples of logic/ mask images used in the experiments.}
   \label{fig:logic_operations}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 4, Figure 4.24(a)}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 2, Figure 2.41(c)}
 
 \section{Smoothing Linear Filters}
 \label{sec:smoothing}
@@ -397,7 +402,7 @@ Smoothing filters нь зургийн чимээг багасгах, ирмэг�
   \label{fig:smoothing}
 \end{figure}
 
-\paragraph{Trade-off:}
+\paragraph{Үр дүн:}
 Kernel хэмжээ томорхтой зэрэгцэн чимээ багасдаг боловч зургийн нарийн мэдээлэл, ирмэг алдагдах эрсдэл нэмэгддэг. Optimal хэмжээ сонгох нь хэрэглээнээс хамаарна.
 
 \section{Median Filter}
@@ -410,7 +415,7 @@ Median filter нь salt-and-pepper noise арилгахад маш үр дүнт
   \begin{subfigure}[b]{0.30\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0335(a)(ckt_board_saltpep_prob_pt05).png}
-    \caption{Эх зураг (salt-pepper noise)}
+    \caption{Эх зураг (salt-pepper noise)\footnotemark}
     \label{fig:median_orig}
   \end{subfigure}
   \hfill
@@ -438,6 +443,7 @@ Median filter нь salt-and-pepper noise арилгахад маш үр дүнт
   \caption{Median filter ашиглан salt-and-pepper noise арилгасан үр дүн. Ирмэгүүд хадгалагдсаар чимээ бараг бүрэн устсан байна.}
   \label{fig:median}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 3, Figure 3.35(a)}
 
 \section{Sharpening using Laplacian}
 \label{sec:laplacian}
@@ -449,7 +455,7 @@ Laplacian оператор нь хоёр дахь зэргийн уламжла�
   \begin{subfigure}[b]{0.22\textwidth}
     \centering
     \includegraphics[width=\linewidth]{Fig0338(a)(blurry_moon).png}
-    \caption{Эх зураг}
+    \caption{Эх зураг\footnotemark}
     \label{fig:lap_orig}
   \end{subfigure}
   \hfill
@@ -477,34 +483,56 @@ Laplacian оператор нь хоёр дахь зэргийн уламжла�
   \caption{Laplacian оператор ашиглан зургийг хурцалсан үр дүн. Ирмэгүүд тодорхой болж, бүдэг зураг илүү нарийвчилсан болсон байна.}
   \label{fig:laplacian}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 3, Figure 3.38(a)}
 
 \paragraph{Үр дүн:}
 Laplacian filter нь ирмэгийг илрүүлж, тэдгээрийг эх зурагт нэмснээр хурц, тод үр дүн гаргаж байна. Энэ арга нь бүдэг зургийг сайжруулахад маш үр дүнтэй.
 
-\section{Sobel Edge Detection}
+\section{Combined methods}
 \label{sec:sobel}
 
-Sobel оператор нь нэг дэх зэргийн уламжлал (gradient) ашиглан ирмэг илрүүлдэг. Зураг \ref{fig:sobel}-д Sobel edge detection-ийн үр дүнг харуулав.
+Sobel оператор нь нэг дүгээр зэргийн уламжлал (gradient) ашиглан ирмэг илрүүлдэг. Зураг \ref{fig:sobel}-д Sobel edge detection-ийн үр дүнг харуулав.
 
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.40\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{Fig0219(rose1024).png}
-    \caption{Эх зураг}
+    \includegraphics[width=\linewidth]{Fig0343(a)(skeleton_orig).png}
+    \caption{Эх зураг\footnotemark}
     \label{fig:sobel_orig}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.40\textwidth}
     \centering
+    \includegraphics[width=\linewidth]{edge.png}
+    \caption{Илрүүлсан ирмэг}
+    \label{fig:sobel_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
     \includegraphics[width=\linewidth]{sobel.png}
     \caption{Sobel edge detection}
     \label{fig:sobel_result}
   \end{subfigure}
-
+\hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{extra_sharp.png}
+    \caption{Сайжруулсан зураг 1-р алхам}
+    \label{fig:sobel_orig}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{sharp_k3.png}
+    \caption{Сайжруулсан зураг 2-р алхам}
+    \label{fig:sobel_orig}
+  \end{subfigure}
   \caption{Sobel оператор ашиглан ирмэг илрүүлсэн үр дүн. Объектын хил, хэлбэр тодорхой илэрч байна.}
   \label{fig:sobel}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 3, Figure 3.43(a)}
 
 \section{Notch Filtering}
 \label{sec:notch}
@@ -515,8 +543,8 @@ Notch filter нь давтамжийн орчинд (frequency domain) periodic 
   \centering
   \begin{subfigure}[b]{0.28\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{Fig0237(a)(characters test pattern)_POST.png}
-    \caption{Эх зураг (periodic noise)}
+    \includegraphics[width=\linewidth]{Fig0464(a)(car_75DPI_Moire).png}
+    \caption{Эх зураг (periodic noise)\footnotemark}
     \label{fig:notch_orig}
   \end{subfigure}
   \hfill
@@ -537,11 +565,12 @@ Notch filter нь давтамжийн орчинд (frequency domain) periodic 
   \caption{Notch filter ашиглан periodic noise арилгасан үр дүн. Frequency domain дээр чимээний цэгүүдийг илрүүлж шүүснээр цэвэр зураг гаргаж авсан.}
   \label{fig:notch}
 \end{figure}
+\footnotetext{Source: Digital Image Processing (Gonzalez \& Woods), Chapter 4, Figure 4.64(a)}
 
-\paragraph{Давуу тал:}
+\paragraph{Үр дүн:}
 Notch filtering нь spatial domain-д арилгах боломжгүй periodic pattern чимээг (жишээ нь scan lines, moiré patterns) маш үр дүнтэй арилгадаг.
 
-\section{Нийлмэл Үр Дүн}
-\label{sec:summary}
+% \section{Нийлмэл Үр Дүн}
+% \label{sec:summary}
 
-Энэхүү лабораторийн ажлын хүрээнд дүрс боловсруулах олон янзын аргуудыг практикт хэрэгжүүлж, тус бүрийн давуу тал, хязгаарлалтыг судалсан. Intensity resolution ба spatial resolution нь зургийн чанарын үндсэн үзүүлэлт болох нь тодорхой харагдсан. Image interpolation, contrast stretching, histogram processing зэрэг аргууд нь зургийг визуалаар сайжруулахад чухал үүрэг гүйцэтгэдэг. Smoothing болон sharpening filters нь зөрчилтэй зорилготой боловч хослуулан ашигласнаар оптимал үр дүн гаргаж болдог. Frequency domain techniques болох notch filtering нь spatial domain-д шийдвэрлэх боломжгүй асуудлуудыг шийддэг давуу талтай. Эдгээр аргуудыг ойлгож, хэрэглээндээ тохируулан хэрэгжүүлэх нь дүрс боловсруулалтын үр дүнтэй судалгаа явуулах үндэс суурь болно.
+% Энэхүү лабораторийн ажлын хүрээнд дүрс боловсруулах олон янзын аргуудыг практикт хэрэгжүүлж, тус бүрийн давуу тал, хязгаарлалтыг судалсан. Intensity resolution ба spatial resolution нь зургийн чанарын үндсэн үзүүлэлт болох нь тодорхой харагдсан. Image interpolation, contrast stretching, histogram processing зэрэг аргууд нь зургийг визуалаар сайжруулахад чухал үүрэг гүйцэтгэдэг. Smoothing болон sharpening filters нь зөрчилтэй зорилготой боловч хослуулан ашигласнаар оптимал үр дүн гаргаж болдог. Frequency domain techniques болох notch filtering нь spatial domain-д шийдвэрлэх боломжгүй асуудлуудыг шийддэг давуу талтай. Эдгээр аргуудыг ойлгож, хэрэглээндээ тохируулан хэрэгжүүлэх нь дүрс боловсруулалтын үр дүнтэй судалгаа явуулах үндэс суурь болно.

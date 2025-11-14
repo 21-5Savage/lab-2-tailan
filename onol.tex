@@ -35,7 +35,7 @@ Median filter smooth linear filter-тэй төстэй зарчимтай бөг
 Unsharp masking нь Gaussian blur-аас үүсэх дүрс болон эх дурс хоёрыг нэмж буюу давхарлана, харин High-boost filtering нь mask-ын коэффициентийг өндөрсгөж илүү хүчтэй хурцруулах боломж олгодог. Энэхүү арга нь local contrast ба ирмэгийг илрүүрэх процессыг хялбарчилж, бүрсгэр зургийг тодруулдаг. 
 
 \section{Combining Spatial Enhancement Methods}
-Олон spatial enhancement аргуудыг хослуулснаар дүрсний чанарыг хамгийн оновчтой байдлаар сайжруулж болно. Жишээ нь, Laplacian edge sharpening, histogram equalization, local enhancement-г нэгтгэж, зургийн ирмэг, гэрэл, contrast-ийг нэг дор сайжруулах эсвэл эх дүрсээс эхлэн сайжруулсан дүрс хүртлэх автомат Pipeline үүсгэх гэх мэтээр хэрэгжүүлж болно.  Composite methods нь single-method аргуудаас илүү уян хатан, хэрэглээний хувьд өргөн боломж олгодог.
+Олон spatial enhancement аргуудыг хослуулснаар дүрсний чанарыг хамгийн оновчтой байдлаар сайжруулж болно. Жишээ нь, Laplacian edge sharpening, histogram equalization, local enhancement-г нэгтгэж, зургийн ирмэг, гэрэл, contrast-ийг нэг дор сайжруулах эсвэл эх дүрсээс эхлэн сайжруулсан дүрс хүртлэх автомат Pipeline үүсгэх гэх мэтээр хэрэгжүүлж болно.  Composite methods нь ашиглан уян хатан байдлаар боловсруулалт хийх нь ихэнх тохиолдолд хамгийн ашигтай үр дүхг гаргана. 
 
 \section{Notch Filters}
 Notch filter нь давтамжийн орчинд тодорхой давтамжийн чимээг арилгах зориулалттай. Fourier transform ашиглан давтамжийн дүрслэлийг гаргаж, чимээ болон periodic noise оршин буй цэгүүдийг олж хасаад Inverse Fourier Transform-г ашиглан пикселийн орчинд эргэн хөрвүүлж noise багассан зургийг гаргадаг. 

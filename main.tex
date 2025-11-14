@@ -155,15 +155,35 @@
 \chapter{Үр дүн}
 \subfile{pic.tex}
 
-\chapter{Код ба алгоритм оруулах}
-Код оруулахдаа begin\{lstlisting\}  ... end\{lstlisting\} командын хооронд бичнэ.
+% \chapter{Код ба алгоритм оруулах}
+% Код оруулахдаа begin\{lstlisting\}  ... end\{lstlisting\} командын хооронд бичнэ.
 
 
 %----------------------------------------------------------------------------------------
 %   Дүгнэлт эндээс эхэлнэ
 %----------------------------------------------------------------------------------------
 \conclusion{Дүгнэлт}
-Дүгнэлтийг энд бич
+Энэхүү лабораторийн ажил нь spatial болон frequency domain гэх мэт арван дөрвөн үндсэн дүрс боловсруулах техникүүдийг хэрэгжүүлж хэрэглээ болон үр дүнг шинжлэв. Үүнд Python болон OpenCV ашигласан бөгөөд ихэнх онолын ойлголтуудыг өөрийн тодорхойлсон аргаар хэрэгжүүлсэн.
+
+Spatial domain болон intensity domain-уудтай шууд харьцах нь харьцангуй энгийн байсан бөгөөд Үр дүн болон хэрэглээний хэрэгжүүлэлтэд зарцуулсан цагтай харьцуулахад маш ашигтай нь илт харагдсан. 
+
+Image interpolation техникүүд нь зургийн spatial resolution сайжруулахад чухал үүрэгтэй техникүүд юм. Тэдгээрээс хамгийн түгээмэл хэрэглэгдэх хоёр алгоритмуудыг хэрэгжүүлсэн. Эндээс Nearest-neighbor interpolation нь хурдан боловч чанарын хувьд сул үр дүн өгсөн бол bilinear interpolation тооцоолол ихтэй ч нь илүү нарийвчлалтай үр дүн гаргасан. Дээрх хоёр алгоритмуудыг хэрэгжүүлэх явцдаа, онолын хувьд хамгийн сайн ажиллаж болохуйц bicubic interpolation-ий тухай судалж мэдсэн боловч тус лабораторийн хүрээнд хэрэгжүүлэлт хийгээгүй болно.
+
+Contrast stretching, gray-level slicing, bit-plane slicing зэрэг алгоритмууд нь бүгд дүрсийн тодорхой мужуудад боловсруулалт хийх техникүүд. Тус алгоритмуудыг ашиглан дүрс дэх чимээг арилгаж, ашигтай мэдээллийг салгах чадвартай болохыг харуулсан. Gray-level slicing нь рентген болон хэт авианы зургийн анализад үр дүнтэй байсан бол bit-plane slicing нь steganography болон чимээг салгахад давуу талтай байв. Харин өнгө муутай дүрсийг сайжруулахад contrast stretching болон thresholding техникүүд нь илүү өргөн хэрэглэгддэг, тэдгээр нь чимээ арилгах гэхээс илүү feature тодотгох тал дээр тулгуурлан ажилладаг.
+
+Histogram дээр тооцоолол хийх нь дүн шинжилгээний түгээмэл аргуудын нэг юм. Лабораторийн ажлыг гүйцэтгэх явцад нь зургийн тархалтыг шинжлэх болон contrast-ийг автоматаар сайжруулахад талаар хэрэглэсэн боловч historgram-ийг ашиглан дүрс сайжруулах олон боломж байгааг анзаарсан. Жишээ нь: Outlier detection, image segmentation зэрэгт histogram-ийг ашиглаж болно. Мөн зөвхөн боловсруулалтаар хязгаарлагдахгүйгээр машин сургалтад feature extraction хийхэд чухал үүрэгтэй байж болохыг судалж мэдсэн.
+
+Шүүлтийн аргуудын хувьд median filter нь salt-pepper чимээг арилгахад linear averaging filter-ээс илүү үр дүнтэй байсан бөгөөд ирмэгийг сайн хадгалдаг. Smoothing linear filters нь бүрсгэр буюу Гауссын чимээг багасгахад тохиромжтой байсан. Хэрэгжүүлэх явцад linear averaging kernel томрох тусам тооцоолол хийх хугацаа маш хурдтай өсөж буй нь анзаарагдсан. Харин median filter нь хэрэгжүүлэлтийг OpenCV сангийн хэрэгжүүлэлтэй жишиж үзсэн бөгөөд үр дүнгийн ялгаа үл мэдэгдэхүйц хэмжээд илэрсэн.
+
+Sharpening техникүүдийн хувьд Laplacian оператор нь ирмэгийг үр дүнтэй илрүүлж, unsharp masking болон high-boost filtering нь тухайн орчны хувьд contrast-ийг сайжруулахад илүү давуу тал олгосон. Эдгээр аргуудыг хослуулснаар нэг аргын сул талыг нөхөж, илүү чанартай үр дүн гаргаж чадсан.
+
+Notch filters нь Histogram дээрх тооцоололтой санааны хувьд маш төстэй арга гэдгийг анзаарсан. Historgram нь энгийн пикселийн утга тоолох аргаар domain үүсгэж байсан бол Notch Filter нь Fourier transform ашиглан давтамжийн domain үүсгэж, чимээний эх үүсвэрийг шууд тодорхойлж арилгах аргаар ажилладгаараа онцлогтой. Notch filter нь тодорхой давтамж бүхий чимээг чимээг арилгахад онцгой үр дүнтэй байсан бөгөөд spatial domain-ийн аргуудаар хийхэд хүндрэлтэй тодорхой давтамжийн чимээг зайлуулах боломжийг олгосон. 
+
+Судалгаа хийх явцад "хамгийн сайн" алгоритм байхгүй гэдэг нь илт харагдаж байсан. Ихэнх судалгааны хүрээнд багтсан бүх алгоритмуудад хэрэгжүүлэлтийн энгийн болон нарийвчлалтайгаас үл хамааран хэрэглэгдэж болох тохиолдлууд багагүй байсан. Алгоритм сонгох нь зорилго тодорхойлолт, зургийн төрөл, чимээний шинж чанар, тодорхой хэрэглээний шаардлагаас хамааран хувьсах ёстой үйл явц байх шаардлагатай. 
+
+
+
+Энэхүү лабораторийн ажил нь дүрс боловсруулах үндсэн техникүүдийн онол, практик хэрэгжүүлэлтийг нэгтгэн, өөр өөр хэрэглээнд тохирсон арга сонгох чадварыг хөгжүүлэхэд чухал суурь болсон.
 
 %----------------------------------------------------------------------------------------
 %   Дипломын номзүй, хавсралтын хэсэг эндээс эхэлнэ
@@ -171,20 +191,46 @@
 
 \singlespace
 \addcontentsline{toc}{part}{НОМ ЗҮЙ}
-\begin{thebibliography}{}
-	% Ашигласан материалыг эндээс оруулна
-	\bibitem{image1}
-	Inserting Images, Share LaTex, \url{https://www.sharelatex.com/learn/Inserting_Images}
-	\bibitem{pharagraph1}
-	Paragraphs and new lines,  Share LaTex, \url{https://www.sharelatex.com/learn/Paragraphs_and_new_lines}
-	\bibitem{format1}
-	Bold, italics and underlining, Share LaTex, \url{https://www.sharelatex.com/learn/Bold,_italics_and_underlining}
-	\bibitem{list}
-	Lists, Share LaTex, \url{https://www.sharelatex.com/learn/Lists}
-    \bibitem{table}
-    Tables, Share LaTex, https://www.sharelatex.com/learn/Tables
-\end{thebibliography}
+\begin{thebibliography}{9}
 
+\bibitem{gonzalez2018book}
+R. C. Gonzalez and R. E. Woods, \textit{Digital Image Processing}, 3rd ed. Upper Saddle River, NJ: Prentice Hall, 2008.
+
+\bibitem{dip_images}
+R. C. Gonzalez and R. E. Woods, "DIP3E Book Images," \textit{The Image Processing Place}. [Online]. Available: https://www.imageprocessingplace.com/DIP-3E/dip3e\_book\_images\_downloads.htm
+
+\bibitem{opencv}
+G. Bradski, "The OpenCV Library," \textit{Dr. Dobb's Journal of Software Tools}, 2000.
+
+\bibitem{opencv_docs}
+"OpenCV Documentation," OpenCV. [Online]. Available: https://docs.opencv.org/
+
+\bibitem{scipy_interpolation}
+"Interpolation (scipy.interpolate)," SciPy Documentation. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/interpolate.html
+
+\bibitem{histogram_equalization}
+"Histogram Equalization," OpenCV Tutorials. [Online]. Available: https://docs.opencv.org/4.x/d5/daf/tutorial\_py\_histogram\_equalization.html
+
+\bibitem{median_filter}
+"Image Filtering," OpenCV Documentation. [Online]. Available: https://docs.opencv.org/4.x/d4/d13/tutorial\_py\_filtering.html
+
+\bibitem{unsharp_masking}
+"Image Sharpening," SciKit-Image Documentation. [Online]. Available: https://scikit-image.org/docs/stable/auto\_examples/filters/plot\_unsharp\_mask.html
+
+\bibitem{fourier_transform}
+"Fourier Transform," OpenCV Tutorials. [Online]. Available: https://docs.opencv.org/4.x/de/dbc/tutorial\_py\_fourier\_transform.html
+
+\bibitem{numpy}
+C. R. Harris et al., "Array programming with NumPy," \textit{Nature}, vol. 585, no. 7825, pp. 357–362, 2020.
+
+\bibitem{matplotlib}
+J. D. Hunter, "Matplotlib: A 2D graphics environment," \textit{Computing in Science \& Engineering}, vol. 9, no. 3, pp. 90–95, 2007.
+
+\bibitem{image_kernels}
+"Image Kernels Explained Visually," Setosa.io. [Online]. Available: https://setosa.io/ev/image-kernels/
+
+
+\end{thebibliography}
 
 %----------------------------------------------------------------------------------------
 %   Хавсралтууд эндээс эхэлнэ

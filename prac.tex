@@ -163,13 +163,13 @@ binary_thresh = threshold_binary(img, threshold_val)
 Binary threshold нь зургийг хар цагаан хоёр өнгө рүү зургыг хөрвүүлнэ. Contrast stretch хийсэн зурагт нэмэлт боловсруулалт болгон ашиглана.
 
 \begin{itemize}
-    \item \textbf{threshold\_value}: Босгоны утга. 
+    \item \textbf{threshold\_value}: Босго. 
     
     \item \textbf{Шалгах нөхцөл}: Хэрэв пиксел босгоос их буюу тэнцүү бол 255 (цагаан), бусад тохиолдолд 0 (хар) гэж тогтооно.
 \end{itemize}
 
 \section{Gray-Level Slicing}
-Энэ хэсэгт саарал түвшний зүсэлт (gray level slicing) аргыг хэрэгжүүлэв. 
+Энэ хэсэгт (gray level slicing) аргыг хэрэгжүүлэв. 
 
 
 \subsection{Python кодын хэрэгжилт}
@@ -288,24 +288,13 @@ def bit_plane_slice(img, bit_position):
 \subsubsection{Алгоритмын тайлбар}
 
 \begin{itemize}
-    \item \textbf{bit\_position}: Ялгах битийн байршил (0-7). Bit 0 нь хамгийн баруун бит (LSB), Bit 7 нь хамгийн зүүн бит (MSB).
+    \item \textbf{bit\_position}: Ялгах битийн оршиж буй муж (0-7). Bit 0 нь хамгийн баруун бит (LSB), Bit 7 нь хамгийн зүүн бит (MSB).
     
-    \item \textbf{img[i, j] >> bit\_position}: Битийн баруун шилжилт үйлдэл. Пикселийн утгыг баруун тийш bit\_position удаа шилжүүлж, хэрэгтэй битийг хамгийн баруун байрлалд авчирна.
+    \item \textbf{img[i, j] >> bit\_position}: Битийu баруун тийш шилжүүлэх үйлдэл. Пикселийн утгыг баруун тийш bit\_position удаа шилжүүлж, хэрэгтэй битийг хамгийн баруун байрлалд авчирна.
     
     \item \textbf{\& 1}: AND үйлдэл. Хамгийн баруун битийг ялгаж авна. Бусад битүүдийг 0 болгоно.
     
     \item \textbf{bit\_value * 255}: Битийн утга 0 эсвэл 1 байна. Үүнийг 255-аар үржүүлж харагдахуйц болгоно (0 → хар, 1 → цагаан).
-\end{itemize}
-
-
-\subsubsection{Битийн давхаргуудын шинж чанар}
-
-\begin{itemize}
-    \item \textbf{Дээд битүүд (Bit 7, 6, 5)}: Зургийн үндсэн бүтэц, дүрс, хэлбэрийг агуулна. Эдгээр давхарга нь анхны зургийг таних боломжтой.
-    
-    \item \textbf{Дунд битүүд (Bit 4, 3)}: Нарийн ширхэгтэй мэдээлэл, texture, жижиг хэв маягийг агуулна.
-    
-    \item \textbf{Доод битүүд (Bit 2, 1, 0)}: Санамсаргүй дуу чимээ шиг харагдана. Эдгээрийг устгасан ч зураг таних боломжтой.
 \end{itemize}
 
 \section{Histogram Processing}
